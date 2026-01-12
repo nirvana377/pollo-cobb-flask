@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Gestión Pollos Cobb 500</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <!-- ✅ BOTÓN HAMBURGUESA PARA MÓVIL -->
+            <button class="btn btn-primary d-md-none me-2" type="button" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-egg-fried"></i> Sistema Pollos Cobb 500
+            </span>
+            
+            <div class="d-flex align-items-center">
+                <!-- Campana de Notificaciones -->
+                <div class="dropdown me-3">
+                    <button class="btn btn-light position-relative" type="button" id="btnNotificaciones" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell-fill fs-5"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="badge-notificaciones" style="display: none;">
+                            0
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end notificaciones-dropdown" aria-labelledby="btnNotificaciones" style="width: 380px; max-height: 500px; overflow-y: auto;">
+                        <li class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-bell"></i> Notificaciones</span>
+                            <button class="btn btn-sm btn-link text-decoration-none" onclick="marcarTodasLeidas()">
+                                Marcar todas leídas
+                            </button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <div id="lista-notificaciones">
+                            <li class="text-center p-3 text-muted">
+                                <i class="bi bi-inbox"></i><br>
+                                No hay notificaciones
+                            </li>
+                        </div>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-center text-primary" href="#" onclick="verTodasNotificaciones(event)">
+                                Ver todas las notificaciones
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <span class="text-white d-none d-md-inline">
+                    <i class="bi bi-calendar3"></i> <span id="fecha-actual"></span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 bg-light sidebar" id="sidebar">
+                <div class="d-flex flex-column p-3">
+                    <h6 class="text-muted mb-3">MENÚ</h6>
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active" data-section="dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-section="lotes">
+                                <i class="bi bi-box-seam"></i> Gestión de Lotes
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-section="compras">
+                                <i class="bi bi-cart-plus"></i> Registrar Compras
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-section="clientes">
+                                <i class="bi bi-people"></i> Clientes
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-section="ventas">
+                                <i class="bi bi-cash-coin"></i> Ventas
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-section="notificaciones">
+                                <i class="bi bi-bell"></i> Notificaciones
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-section="cronograma">
+                                <i class="bi bi-calendar-check"></i> Cronograma
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-section="mortalidad">
+                                <i class="bi bi-heartbreak"></i> Mortalidad
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+                <!-- AQUÍ CONTINÚA EL SIGUIENTE BLOQUE -->
+<!-- SECCIÓN: DASHBOARD -->
+                <div id="section-dashboard" class="content-section">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Dashboard</h1>
+                        <button class="btn btn-primary btn-sm" onclick="cargarDashboard()">
+                            <i class="bi bi-arrow-clockwise"></i> <span class="d-none d-md-inline">Actualizar</span>
+                        </button>
+                    </div>
+
+                    <!-- Tarjetas de Estadísticas -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Capital Total
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="stat-capital">
+                                                $0
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-currency-dollar fs-2 text-primary"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Lotes Activos
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="stat-lotes">
+                                                0
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-box-seam fs-2 text-success"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Pollos Activos
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="stat-pollos">
+                                                0
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-egg-fried fs-2 text-info"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Gastos del Mes
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="stat-gastos">
+                                                $0
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-graph-down fs-2 text-warning"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Lotes -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Resumen de Lotes</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tabla-resumen-lotes">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre</th>
+                                            <th>Pollos</th>
+                                            <th>Días</th>
+                                            <th>Capital Inicial</th>
+                                            <th>Capital Actual</th>
+                                            <th>Gastos</th>
+                                            <th>Ingresos</th>
+                                            <th>Resultado</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="11" class="text-center">Cargando datos...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN: LOTES -->
+                <div id="section-lotes" class="content-section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Gestión de Lotes</h1>
+                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearLote">
+                            <i class="bi bi-plus-circle"></i> <span class="d-none d-sm-inline">Crear Nuevo</span>
+                        </button>
+                    </div>
+
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tabla-lotes">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre</th>
+                                            <th>Cantidad</th>
+                                            <th class="d-none d-md-table-cell">Fecha Inicio</th>
+                                            <th class="d-none d-lg-table-cell">Fecha Estimada Salida</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="7" class="text-center">No hay lotes registrados</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL: Crear Lote -->
+                <div class="modal fade" id="modalCrearLote" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Crear Nuevo Lote</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="formCrearLote">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre del Lote *</label>
+                                        <input type="text" class="form-control" id="nombre_lote" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Cantidad de Pollos *</label>
+                                        <input type="number" class="form-control" id="cantidad_inicial" value="50" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha de Inicio *</label>
+                                        <input type="date" class="form-control" id="fecha_inicio" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha Estimada de Salida</label>
+                                        <input type="date" class="form-control" id="fecha_estimada_salida">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Capital Inicial *</label>
+                                        <input type="number" class="form-control" id="capital_inicial" placeholder="2000000" required>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" onclick="crearLote()">Crear Lote</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL: Editar Lote -->
+                <div class="modal fade" id="modalEditarLote" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Lote</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="formEditarLote">
+                                    <input type="hidden" id="edit_id_lote">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre del Lote *</label>
+                                        <input type="text" class="form-control" id="edit_nombre_lote" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Cantidad de Pollos *</label>
+                                        <input type="number" class="form-control" id="edit_cantidad_inicial" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha de Inicio *</label>
+                                        <input type="date" class="form-control" id="edit_fecha_inicio" readonly>
+                                        <small class="text-muted">No se puede modificar la fecha de inicio</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha Estimada de Salida</label>
+                                        <input type="date" class="form-control" id="edit_fecha_estimada_salida">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" onclick="actualizarLote()">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- AQUÍ CONTINÚA EL SIGUIENTE BLOQUE -->
+<!-- SECCIÓN: COMPRAS -->
+                <div id="section-compras" class="content-section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Registrar Compras</h1>
+                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarCompra">
+                            <i class="bi bi-cart-plus"></i> <span class="d-none d-sm-inline">Nueva Compra</span>
+                        </button>
+                    </div>
+
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm" id="tabla-compras">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Lote</th>
+                                            <th>Tipo</th>
+                                            <th class="d-none d-md-table-cell">Cantidad</th>
+                                            <th class="d-none d-lg-table-cell">Costo Unit.</th>
+                                            <th>Total</th>
+                                            <th class="d-none d-md-table-cell">Fecha</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="8" class="text-center">No hay compras registradas</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN: CLIENTES -->
+                <div id="section-clientes" class="content-section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Gestión de Clientes</h1>
+                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearCliente">
+                            <i class="bi bi-person-plus"></i> <span class="d-none d-sm-inline">Nuevo Cliente</span>
+                        </button>
+                    </div>
+
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm" id="tabla-clientes">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre</th>
+                                            <th class="d-none d-md-table-cell">Teléfono</th>
+                                            <th class="d-none d-lg-table-cell">Dirección</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="6" class="text-center">No hay clientes registrados</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL: Crear Cliente -->
+                <div class="modal fade" id="modalCrearCliente" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="bi bi-person-plus"></i> Nuevo Cliente</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="formCrearCliente">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre Completo *</label>
+                                        <input type="text" class="form-control" id="cliente_nombre" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="cliente_telefono">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Dirección</label>
+                                        <textarea class="form-control" id="cliente_direccion" rows="2"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" onclick="crearCliente()">Crear Cliente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL: Editar Cliente -->
+                <div class="modal fade" id="modalEditarCliente" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Cliente</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="formEditarCliente">
+                                    <input type="hidden" id="edit_id_cliente">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre Completo *</label>
+                                        <input type="text" class="form-control" id="edit_cliente_nombre" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="edit_cliente_telefono">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Dirección</label>
+                                        <textarea class="form-control" id="edit_cliente_direccion" rows="2"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" onclick="actualizarCliente()">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN: VENTAS -->
+                <div id="section-ventas" class="content-section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Gestión de Ventas</h1>
+                        <div>
+                            <button class="btn btn-success btn-sm me-1 mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#modalRegistrarVenta">
+                                <i class="bi bi-cash-coin"></i> <span class="d-none d-sm-inline">Registrar</span>
+                            </button>
+                            <button class="btn btn-warning btn-sm mb-2 mb-md-0" onclick="cargarCreditosPendientes()">
+                                <i class="bi bi-credit-card"></i> <span class="d-none d-sm-inline">Créditos</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Ventas -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Historial de Ventas</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm" id="tabla-ventas">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Lote</th>
+                                            <th class="d-none d-md-table-cell">Cliente</th>
+                                            <th class="d-none d-lg-table-cell">Pollos</th>
+                                            <th class="d-none d-lg-table-cell">Kilos</th>
+                                            <th class="d-none d-md-table-cell">Precio/Kg</th>
+                                            <th>Total</th>
+                                            <th class="d-none d-lg-table-cell">Fecha</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="10" class="text-center">No hay ventas registradas</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Créditos Pendientes -->
+                    <div class="card shadow" id="card-creditos" style="display: none;">
+                        <div class="card-header py-3 d-flex justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-warning">Créditos Pendientes</h6>
+                            <button class="btn btn-sm btn-secondary" onclick="document.getElementById('card-creditos').style.display='none'">
+                                <i class="bi bi-x"></i> Cerrar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm" id="tabla-creditos">
+                                    <thead>
+                                        <tr>
+                                            <th>Cliente</th>
+                                            <th class="d-none d-md-table-cell">Lote</th>
+                                            <th class="d-none d-lg-table-cell">Total</th>
+                                            <th class="d-none d-lg-table-cell">Pagado</th>
+                                            <th>Pendiente</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- AQUÍ CONTINÚA EL SIGUIENTE BLOQUE -->
+<!-- SECCIÓN: NOTIFICACIONES -->
+                <div id="section-notificaciones" class="content-section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2"><i class="bi bi-bell"></i> Notificaciones</h1>
+                        <div>
+                            <button class="btn btn-primary btn-sm me-1 mb-2 mb-md-0" onclick="generarNotificacionesAutomaticas()">
+                                <i class="bi bi-arrow-clockwise"></i> <span class="d-none d-md-inline">Generar</span>
+                            </button>
+                            <button class="btn btn-secondary btn-sm mb-2 mb-md-0" onclick="marcarTodasLeidas()">
+                                <i class="bi bi-check2-all"></i> <span class="d-none d-md-inline">Marcar Leídas</span>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <!-- Filtros -->
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <label class="form-label">Prioridad:</label>
+                                    <select class="form-select form-select-sm" id="filtro-prioridad" onchange="cargarNotificaciones()">
+                                        <option value="">Todas</option>
+                                        <option value="critica">Críticas</option>
+                                        <option value="alta">Altas</option>
+                                        <option value="media">Medias</option>
+                                        <option value="baja">Bajas</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Estado:</label>
+                                    <select class="form-select form-select-sm" id="filtro-leidas" onchange="cargarNotificaciones()">
+                                        <option value="false">No leídas</option>
+                                        <option value="">Todas</option>
+                                        <option value="true">Leídas</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Lista de Notificaciones -->
+                    <div id="contenedor-notificaciones">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN: CRONOGRAMA -->
+                <div id="section-cronograma" class="content-section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2"><i class="bi bi-calendar-check"></i> Cronograma</h1>
+                        <button class="btn btn-primary btn-sm" onclick="verEventosPendientesGeneral()">
+                            <i class="bi bi-arrow-clockwise"></i> <span class="d-none d-md-inline">Actualizar</span>
+                        </button>
+                    </div>
+                
+                    <!-- Seleccionar Lote -->
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-end">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label class="form-label">Seleccionar Lote:</label>
+                                    <select class="form-select" id="cronograma_id_lote" onchange="cargarCronogramaLote()">
+                                        <option value="">-- Seleccionar Lote --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <button class="btn btn-info btn-sm w-100" onclick="verEventosPendientesGeneral()">
+                                        <i class="bi bi-list-check"></i> Ver Eventos Pendientes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Cronograma del Lote -->
+                    <div id="cronograma-lote-detalle" style="display: none;">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                
+                    <!-- Eventos Pendientes -->
+                    <div id="eventos-pendientes-general">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN: MORTALIDAD -->
+                <div id="section-mortalidad" class="content-section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2"><i class="bi bi-heartbreak"></i> Mortalidad</h1>
+                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarMortalidad">
+                            <i class="bi bi-plus-circle"></i> <span class="d-none d-sm-inline">Registrar</span>
+                        </button>
+                    </div>
+                
+                    <!-- Resumen General -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Resumen de Mortalidad - Lotes Activos</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm" id="tabla-resumen-mortalidad">
+                                    <thead>
+                                        <tr>
+                                            <th>Lote</th>
+                                            <th class="d-none d-md-table-cell">Cant. Inicial</th>
+                                            <th>Muertos</th>
+                                            <th class="d-none d-lg-table-cell">Vivos</th>
+                                            <th>% Mort.</th>
+                                            <th class="d-none d-md-table-cell">Última Fecha</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="7" class="text-center">Cargando datos...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- Fin Main Content -->
+        </div><!-- Fin row -->
+    </div><!-- Fin container-fluid -->
+    <!-- AQUÍ CONTINÚA EL BLOQUE 5 CON LOS MODALES -->
+<!-- MODAL: Registrar Compra -->
+    <div class="modal fade" id="modalRegistrarCompra" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-cart-plus"></i> Registrar Compra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formRegistrarCompra">
+                        <div class="mb-3">
+                            <label class="form-label">Seleccionar Lote *</label>
+                            <select class="form-select" id="compra_id_lote" required>
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Materia Prima *</label>
+                            <select class="form-select" id="compra_tipo_materia" required>
+                                <option value="">-- Seleccionar --</option>
+                                <option value="POLLOS">Pollos BB</option>
+                                <option value="PRE_INICIO">Alimento Pre-Inicio</option>
+                                <option value="INICIO">Alimento Inicio</option>
+                                <option value="ENGORDE">Alimento Engorde</option>
+                                <option value="CISCO">Cisco</option>
+                                <option value="BEBEDEROS">Bebederos</option>
+                                <option value="COMEDEROS">Comederos</option>
+                                <option value="MEDICAMENTOS">Medicamentos</option>
+                                <option value="VITAMINAS">Vitaminas</option>
+                                <option value="OTROS">Otros</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Cantidad *</label>
+                                <input type="number" step="0.01" class="form-control" id="compra_cantidad" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Unidad *</label>
+                                <input type="text" class="form-control" id="compra_unidad" placeholder="KG, SACOS" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Costo Unitario *</label>
+                            <input type="number" class="form-control" id="compra_costo_unitario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Costo Total (calculado)</label>
+                            <input type="number" class="form-control" id="compra_costo_total" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de Compra *</label>
+                            <input type="date" class="form-control" id="compra_fecha_compra" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="compra_observaciones" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="registrarCompra()">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Registrar Venta -->
+    <div class="modal fade" id="modalRegistrarVenta" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-cash-coin"></i> Registrar Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formRegistrarVenta">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Seleccionar Lote *</label>
+                                <select class="form-select" id="venta_id_lote" required>
+                                    <option value="">-- Seleccionar --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Seleccionar Cliente *</label>
+                                <select class="form-select" id="venta_id_cliente" required>
+                                    <option value="">-- Seleccionar --</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Cantidad de Pollos *</label>
+                                <input type="number" class="form-control" id="venta_cantidad_pollos" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Cantidad de Kilos *</label>
+                                <input type="number" step="0.01" class="form-control" id="venta_cantidad_kilos" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Precio por Kilo *</label>
+                                <input type="number" class="form-control" id="venta_precio_kilo" value="5000" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Valor Total (calculado)</label>
+                                <input type="number" class="form-control" id="venta_valor_total" readonly>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de Venta *</label>
+                            <input type="date" class="form-control" id="venta_fecha_venta" required>
+                        </div>
+
+                        <hr>
+                        <h6 class="mb-3">Forma de Pago</h6>
+
+                        <div class="mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipo_pago" id="pago_contado" value="contado" checked>
+                                <label class="form-check-label" for="pago_contado">
+                                    <strong>Contado</strong>
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipo_pago" id="pago_credito" value="credito">
+                                <label class="form-check-label" for="pago_credito">
+                                    <strong>Crédito</strong>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="div_pago_inicial" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Valor Pagado Inicial</label>
+                                <input type="number" class="form-control" id="venta_valor_pagado_inicial" value="0">
+                                <small class="text-muted">Dejar en 0 si no hubo pago inicial</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="registrarVenta()">Registrar Venta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Registrar Pago -->
+    <div class="modal fade" id="modalRegistrarPago" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-credit-card"></i> Registrar Pago</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formRegistrarPago">
+                        <input type="hidden" id="pago_id_credito">
+                        
+                        <div class="alert alert-info" id="info_credito">
+                            <strong>Cliente:</strong> <span id="info_cliente"></span><br>
+                            <strong>Saldo Pendiente:</strong> <span id="info_saldo_pendiente"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Valor del Pago *</label>
+                            <input type="number" class="form-control" id="pago_valor_pago" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de Pago *</label>
+                            <input type="date" class="form-control" id="pago_fecha_pago" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Método de Pago</label>
+                            <select class="form-select" id="pago_metodo_pago">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Transferencia">Transferencia</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="pago_observaciones" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="registrarPago()">Registrar Pago</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Registrar Mortalidad -->
+    <div class="modal fade" id="modalRegistrarMortalidad" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-heartbreak"></i> Registrar Mortalidad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formRegistrarMortalidad">
+                        <div class="mb-3">
+                            <label class="form-label">Seleccionar Lote *</label>
+                            <select class="form-select" id="mortalidad_id_lote" required>
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cantidad de Pollos Muertos *</label>
+                            <input type="number" class="form-control" id="mortalidad_cantidad" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de Registro *</label>
+                            <input type="date" class="form-control" id="mortalidad_fecha" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Causa</label>
+                            <input type="text" class="form-control" id="mortalidad_causa" placeholder="Ej: Enfermedad respiratoria">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="mortalidad_observaciones" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="registrarMortalidad()">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/app.js"></script>
+    
+    <!-- Script Toggle Sidebar Móvil -->
+    <script>
+        // Toggle del sidebar en móvil
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+        
+        // Cerrar sidebar al hacer clic en un enlace (móvil)
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    document.getElementById('sidebar').classList.remove('show');
+                }
+            });
+        });
+        
+        // Cerrar sidebar al hacer clic fuera (móvil)
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (window.innerWidth < 768 && 
+                sidebar.classList.contains('show') && 
+                !sidebar.contains(event.target) && 
+                !sidebarToggle.contains(event.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
