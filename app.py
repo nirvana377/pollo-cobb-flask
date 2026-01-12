@@ -3,7 +3,7 @@ Sistema de Gestión de Pollos Cobb 500
 Backend API con Flask
 """
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import os
 from flask_cors import CORS
 from datetime import datetime, date, timedelta
@@ -16,8 +16,12 @@ from models import (
 )
 from sqlalchemy import func, and_, or_
 
-# Crear aplicación Flask
-app = Flask(__name__)
+# Crear aplicación Flask con configuración de carpetas
+app = Flask(__name__, 
+            template_folder='templates',
+            static_folder='static')
+
+# Cargar configuración
 app.config.from_object(config['development'])
 
 # Inicializar extensiones
@@ -1344,6 +1348,13 @@ def init_database():
 
 @app.route('/')
 def index():
+    """Servir el frontend HTML"""
+    from flask import render_template
+    return render_template('index.html')
+
+@app.route('/api')
+def api_info():
+    """Información de la API"""
     return jsonify({
         'message': 'API Sistema de Gestión de Pollos Cobb 500',
         'version': '1.0.0',

@@ -2,8 +2,7 @@
 // CONFIGURACIÓN DE LA API
 // ============================================
 // Cambiar esta línea al inicio del archivo
-const API_URL = 'https://web-production-bdf15.up.railway.app/api';
-
+const API_URL = '/api';
 // Variables globales
 let lotesActivos = [];
 let clientesActivos = [];
