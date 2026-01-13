@@ -1,32 +1,35 @@
 """
 Sistema de Gestión de Pollos Cobb 500
-Backend API con Flask
+Backend API con Flask - SOLO API (sin frontend)
 """
 
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 import os
 from flask_cors import CORS
 from datetime import datetime, date, timedelta
 from decimal import Decimal
 from config import config
+from flask import Flask, jsonify, request, send_from_directory
 from models import (
     db, Lote, CapitalLote, MovimientoCapital, CompraMateriaPrima, 
     Cliente, Venta, VentaCredito, PagoCliente, EventoCronograma, 
     MortalidadLote, Notificacion, ConfiguracionAlertas
 )
 from sqlalchemy import func, and_, or_
-from flask import Flask, jsonify, request, send_from_directory
 
-# Crear aplicación Flask con configuración de carpetas
-app = Flask(__name__, 
-            template_folder='templates',
-            static_folder='static')
-
-# Cargar configuración
+# Crear aplicación Flask
+app = Flask(__name__)
 app.config.from_object(config['development'])
 
 # Inicializar extensiones
-CORS(app)
+# CORS habilitado para permitir peticiones desde Netlify
+CORS(app, resources={
+        r"/api/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "PUT", "DELETE"],
+            "allow_headers": ["Content-Type"]
+        }
+    })
 db.init_app(app)
 
 # Helper para convertir Decimal a float en JSON
@@ -34,6 +37,27 @@ def decimal_to_float(obj):
     if isinstance(obj, Decimal):
         return float(obj)
     raise TypeError
+
+# ============================================
+# RUTA PRINCIPAL - INFO DE LA API
+# ============================================
+
+@app.route('/')
+def index():
+    return jsonify({
+        'message': 'API Sistema de Gestión de Pollos Cobb 500',
+        'version': '1.0.0',
+        'status': 'active',
+        'endpoints': {
+            'lotes': '/api/lotes',
+            'compras': '/api/compras',
+            'clientes': '/api/clientes',
+            'ventas': '/api/ventas',
+            'dashboard': '/api/dashboard/estadisticas',
+            'init_db': '/api/init-db'
+        }
+    })
+
 
 
 # ============================================

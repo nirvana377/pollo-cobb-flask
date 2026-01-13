@@ -1,20 +1,24 @@
+// static/js/app.js - Configuración para Netlify
+
 // ============================================
 // CONFIGURACIÓN DE LA API
 // ============================================
 
-// Detectar automáticamente la URL de la API
-const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000/api'  // Desarrollo local
-    : `${window.location.protocol}//${window.location.host}/api`;  // Producción (Railway)
+// URL de la API en Railway (CAMBIAR por tu URL real)
+const API_URL = 'https://web-production-bdf15.up.railway.app/api';
+// Para desarrollo local, descomentar:
+// const API_URL = 'http://localhost:5000/api';
 
 // Variables globales
 let lotesActivos = [];
 let clientesActivos = [];
 let intervaloNotificaciones = null;
 
-console.log('API URL configurada:', API_URL);  // Para debug
+console.log('🚀 API URL:', API_URL);
 
-// ... resto del código ...
+// ============================================
+// RESTO DEL CÓDIGO (sin cambios)
+// ============================================
 // ============================================
 // INICIALIZACIÓN UNIFICADA
 // ============================================
