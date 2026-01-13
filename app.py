@@ -3,7 +3,7 @@ Sistema de Gestión de Pollos Cobb 500
 Backend API con Flask
 """
 
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 import os
 from flask_cors import CORS
 from datetime import datetime, date, timedelta
@@ -14,7 +14,7 @@ from models import (
     Cliente, Venta, VentaCredito, PagoCliente, EventoCronograma, 
     MortalidadLote, Notificacion, ConfiguracionAlertas
 )
-from sqlalchemy import func
+from sqlalchemy import func, and_, or_
 
 # Crear aplicación Flask
 app = Flask(__name__)
@@ -24,15 +24,11 @@ app.config.from_object(config['development'])
 CORS(app)
 db.init_app(app)
 
-
-# ============================================
-# RUTA PRINCIPAL
-# ============================================
-
-@app.route('/')
-def index():
-    """Servir el archivo HTML principal"""
-    return render_template('index.html')
+# Helper para convertir Decimal a float en JSON
+def decimal_to_float(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    raise TypeError
 
 
 # ============================================
@@ -71,6 +67,7 @@ def crear_lote():
     try:
         data = request.get_json()
         
+        # Crear lote
         nuevo_lote = Lote(
             nombre_lote=data['nombre_lote'],
             cantidad_inicial=data['cantidad_inicial'],
@@ -80,8 +77,9 @@ def crear_lote():
         )
         
         db.session.add(nuevo_lote)
-        db.session.flush()
+        db.session.flush()  # Para obtener el ID del lote
         
+        # Crear capital del lote (RF-04)
         capital = CapitalLote(
             id_lote=nuevo_lote.id_lote,
             capital_inicial=data['capital_inicial'],
@@ -133,10 +131,11 @@ def actualizar_lote(id_lote):
 
 @app.route('/api/lotes/<int:id_lote>/cerrar', methods=['POST'])
 def cerrar_lote(id_lote):
-    """Cerrar un lote"""
+    """Cerrar un lote (RF-12)"""
     try:
         lote = Lote.query.get_or_404(id_lote)
         
+        # Verificar que tenga ventas
         if not lote.ventas:
             return jsonify({
                 'success': False,
@@ -164,6 +163,7 @@ def eliminar_lote(id_lote):
     try:
         lote = Lote.query.get_or_404(id_lote)
         
+        # Verificar que no tenga movimientos
         if lote.movimientos or lote.compras or lote.ventas:
             return jsonify({
                 'success': False,
@@ -181,6 +181,8 @@ def eliminar_lote(id_lote):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # ============================================
 # ENDPOINTS - COMPRAS (RF-06)
 # ============================================
@@ -1342,8 +1344,12 @@ def init_database():
 
 @app.route('/')
 def index():
-    """Servir el archivo HTML principal"""
-    return render_template('index.html')
+    return jsonify({
+        'message': 'API Sistema de Gestión de Pollos Cobb 500',
+        'version': '1.0.0',
+        'status': 'active'
+    })
+
 
 # ============================================
 # EJECUTAR APLICACIÓN
