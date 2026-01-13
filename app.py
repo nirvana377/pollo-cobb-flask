@@ -3,7 +3,7 @@ Sistema de Gestión de Pollos Cobb 500
 Backend API con Flask
 """
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, render_template
 import os
 from flask_cors import CORS
 from datetime import datetime, date, timedelta
@@ -14,46 +14,25 @@ from models import (
     Cliente, Venta, VentaCredito, PagoCliente, EventoCronograma, 
     MortalidadLote, Notificacion, ConfiguracionAlertas
 )
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func
 
 # Crear aplicación Flask
 app = Flask(__name__)
 app.config.from_object(config['development'])
 
 # Inicializar extensiones
-# CORS habilitado para permitir peticiones desde cualquier origen
-CORS(app, resources={
-    r"/api/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "PUT", "DELETE"],
-        "allow_headers": ["Content-Type"]
-    }
-})
-
+CORS(app)
 db.init_app(app)
-
-# Helper para convertir Decimal a float en JSON
-def decimal_to_float(obj):
-    if isinstance(obj, Decimal):
-        return float(obj)
-    raise TypeError
 
 
 # ============================================
-# RUTA PRINCIPAL - Sirve el Frontend
+# RUTA PRINCIPAL
 # ============================================
 
 @app.route('/')
 def index():
     """Servir el archivo HTML principal"""
-    return send_from_directory('templates', 'index.html')
-
-@app.route('/<path:path>')
-def serve_files(path):
-    """Servir archivos estáticos"""
-    if path.startswith('static/'):
-        return send_from_directory('.', path)
-    return send_from_directory('templates', 'index.html')
+    return render_template('index.html')
 
 
 # ============================================
@@ -92,7 +71,6 @@ def crear_lote():
     try:
         data = request.get_json()
         
-        # Crear lote
         nuevo_lote = Lote(
             nombre_lote=data['nombre_lote'],
             cantidad_inicial=data['cantidad_inicial'],
@@ -102,9 +80,8 @@ def crear_lote():
         )
         
         db.session.add(nuevo_lote)
-        db.session.flush()  # Para obtener el ID del lote
+        db.session.flush()
         
-        # Crear capital del lote (RF-04)
         capital = CapitalLote(
             id_lote=nuevo_lote.id_lote,
             capital_inicial=data['capital_inicial'],
@@ -156,11 +133,10 @@ def actualizar_lote(id_lote):
 
 @app.route('/api/lotes/<int:id_lote>/cerrar', methods=['POST'])
 def cerrar_lote(id_lote):
-    """Cerrar un lote (RF-12)"""
+    """Cerrar un lote"""
     try:
         lote = Lote.query.get_or_404(id_lote)
         
-        # Verificar que tenga ventas
         if not lote.ventas:
             return jsonify({
                 'success': False,
@@ -188,7 +164,6 @@ def eliminar_lote(id_lote):
     try:
         lote = Lote.query.get_or_404(id_lote)
         
-        # Verificar que no tenga movimientos
         if lote.movimientos or lote.compras or lote.ventas:
             return jsonify({
                 'success': False,
@@ -206,7 +181,6 @@ def eliminar_lote(id_lote):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
-    
 # ============================================
 # ENDPOINTS - COMPRAS (RF-06)
 # ============================================
@@ -1368,13 +1342,8 @@ def init_database():
 
 @app.route('/')
 def index():
-    return send_from_directory('templates', 'index.html')
-
-@app.route('/<path:path>')
-def serve_static(path):
-    if path.startswith('static/'):
-        return send_from_directory('.', path)
-    return send_from_directory('templates', 'index.html')
+    """Servir el archivo HTML principal"""
+    return render_template('index.html')
 
 # ============================================
 # EJECUTAR APLICACIÓN
