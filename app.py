@@ -16,21 +16,19 @@ from models import (
 )
 from sqlalchemy import func, and_, or_
 
+# Crear aplicación Flask
 app = Flask(__name__)
-
-env = os.getenv("FLASK_ENV", "production")
-app.config.from_object(config[env])
+app.config.from_object(config['development'])
 
 # Inicializar extensiones
-db.init_app(app)
 CORS(app)
+db.init_app(app)
 
 # Helper para convertir Decimal a float en JSON
 def decimal_to_float(obj):
     if isinstance(obj, Decimal):
         return float(obj)
     raise TypeError
-
 
 
 # ============================================
