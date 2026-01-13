@@ -1,15 +1,14 @@
 """
 Sistema de Gestión de Pollos Cobb 500
-Backend API con Flask - SOLO API (sin frontend)
+Backend API con Flask
 """
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 import os
 from flask_cors import CORS
 from datetime import datetime, date, timedelta
 from decimal import Decimal
 from config import config
-from flask import Flask, jsonify, request, send_from_directory
 from models import (
     db, Lote, CapitalLote, MovimientoCapital, CompraMateriaPrima, 
     Cliente, Venta, VentaCredito, PagoCliente, EventoCronograma, 
@@ -22,14 +21,15 @@ app = Flask(__name__)
 app.config.from_object(config['development'])
 
 # Inicializar extensiones
-# CORS habilitado para permitir peticiones desde Netlify
+# CORS habilitado para permitir peticiones desde cualquier origen
 CORS(app, resources={
-        r"/api/*": {
-            "origins": "*",
-            "methods": ["GET", "POST", "PUT", "DELETE"],
-            "allow_headers": ["Content-Type"]
-        }
-    })
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "DELETE"],
+        "allow_headers": ["Content-Type"]
+    }
+})
+
 db.init_app(app)
 
 # Helper para convertir Decimal a float en JSON
@@ -38,26 +38,22 @@ def decimal_to_float(obj):
         return float(obj)
     raise TypeError
 
+
 # ============================================
-# RUTA PRINCIPAL - INFO DE LA API
+# RUTA PRINCIPAL - Sirve el Frontend
 # ============================================
 
 @app.route('/')
 def index():
-    return jsonify({
-        'message': 'API Sistema de Gestión de Pollos Cobb 500',
-        'version': '1.0.0',
-        'status': 'active',
-        'endpoints': {
-            'lotes': '/api/lotes',
-            'compras': '/api/compras',
-            'clientes': '/api/clientes',
-            'ventas': '/api/ventas',
-            'dashboard': '/api/dashboard/estadisticas',
-            'init_db': '/api/init-db'
-        }
-    })
+    """Servir el archivo HTML principal"""
+    return send_from_directory('templates', 'index.html')
 
+@app.route('/<path:path>')
+def serve_files(path):
+    """Servir archivos estáticos"""
+    if path.startswith('static/'):
+        return send_from_directory('.', path)
+    return send_from_directory('templates', 'index.html')
 
 
 # ============================================
@@ -210,8 +206,7 @@ def eliminar_lote(id_lote):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
-
-
+    
 # ============================================
 # ENDPOINTS - COMPRAS (RF-06)
 # ============================================
