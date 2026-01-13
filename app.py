@@ -15,6 +15,7 @@ from models import (
     MortalidadLote, Notificacion, ConfiguracionAlertas
 )
 from sqlalchemy import func, and_, or_
+from flask import Flask, jsonify, request, send_from_directory
 
 # Crear aplicación Flask con configuración de carpetas
 app = Flask(__name__, 
@@ -1348,19 +1349,13 @@ def init_database():
 
 @app.route('/')
 def index():
-    """Servir el frontend HTML"""
-    from flask import render_template
-    return render_template('index.html')
+    return send_from_directory('templates', 'index.html')
 
-@app.route('/api')
-def api_info():
-    """Información de la API"""
-    return jsonify({
-        'message': 'API Sistema de Gestión de Pollos Cobb 500',
-        'version': '1.0.0',
-        'status': 'active'
-    })
-
+@app.route('/<path:path>')
+def serve_static(path):
+    if path.startswith('static/'):
+        return send_from_directory('.', path)
+    return send_from_directory('templates', 'index.html')
 
 # ============================================
 # EJECUTAR APLICACIÓN

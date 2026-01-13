@@ -1,13 +1,20 @@
 // ============================================
 // CONFIGURACIÓN DE LA API
 // ============================================
-// Cambiar esta línea al inicio del archivo
-const API_URL = '/api';
+
+// Detectar automáticamente la URL de la API
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000/api'  // Desarrollo local
+    : `${window.location.protocol}//${window.location.host}/api`;  // Producción (Railway)
+
 // Variables globales
 let lotesActivos = [];
 let clientesActivos = [];
 let intervaloNotificaciones = null;
 
+console.log('API URL configurada:', API_URL);  // Para debug
+
+// ... resto del código ...
 // ============================================
 // INICIALIZACIÓN UNIFICADA
 // ============================================
